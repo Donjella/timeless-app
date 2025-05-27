@@ -48,14 +48,6 @@ jobs:
           JWT_SECRET: test-jwt-secret-key-for-github-actions
           NODE_ENV: test
           
-      - name: Run test coverage
-        run: npm run test:coverage
-        env:
-          DATABASE_URL: mongodb://localhost:27017/timeless-test
-          JWT_SECRET: test-jwt-secret-key-for-github-actions
-          NODE_ENV: test
-        continue-on-error: true
-        
       - name: Deploy to Render
         if: github.ref == 'refs/heads/main'
         run: echo "Deployment automatically triggered by Render on push to main branch"
