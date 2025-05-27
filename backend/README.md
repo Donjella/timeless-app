@@ -915,4 +915,3 @@ Authorization: Bearer <your-token>
 - **Admin**: Requires admin role privileges
 
 
-# Trigger
