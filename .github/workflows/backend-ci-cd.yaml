@@ -47,14 +47,14 @@ jobs:
       - name: Run tests
         run: npm test
         env:
-          DATABASE_URL: mongodb://admin:password@localhost:27017/timeless_test?authSource=admin
+          DATABASE_URL: mongodb://admin:password@localhost:27017/timeless-test?authSource=admin
           JWT_SECRET: test-jwt-secret-key-for-github-actions
           NODE_ENV: test
           
       - name: Run test coverage
         run: npm run test:coverage
         env:
-          DATABASE_URL: mongodb://admin:password@localhost:27017/timeless_test?authSource=admin
+          DATABASE_URL: mongodb://admin:password@localhost:27017/timeless-test?authSource=admin
           JWT_SECRET: test-jwt-secret-key-for-github-actions
           NODE_ENV: test
         continue-on-error: true
