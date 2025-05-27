@@ -1,0 +1,37 @@
+{
+  "extends": "airbnb-base",
+  "env": {
+    "node": true,
+    "es6": true,
+    "es2021": true,
+    "jest": true
+  },
+  "plugins": ["import"],
+  "rules": {
+    "no-console": "off",
+    "consistent-return": "off",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
+    "no-underscore-dangle": "off",
+    "import/no-unresolved": ["error", { "commonjs": true }],
+    "camelcase": [
+      "error",
+      {
+        "properties": "never",
+        "ignoreDestructuring": true,
+        "ignoreImports": true,
+        "allow": [
+          "^brand_",
+          "^first_",
+          "^last_",
+          "^street_",
+          "^payment_",
+          "^postal_",
+          "^watch_",
+          "^total_",
+          "^user_",
+          "^rental_"
+        ]
+      }
+    ]
+  }
+}
