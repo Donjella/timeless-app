@@ -1,0 +1,99 @@
+# ========================================================
+# Docker Compose Usage Notes (Development vs Production)
+# ========================================================
+# To run the application in DEVELOPMENT mode:
+# - Uses Vite dev server for frontend with live reload
+# - Uses Docker MongoDB container (timeless-mongodb)
+# - NODE_ENV should be set to 'development'
+#
+# Run:
+#   docker-compose down --remove-orphans
+#   docker-compose up -d --build
+#
+# To run the application in PRODUCTION mode:
+# - Frontend is built using 'vite build' and served via 'serve'
+# - Backend runs using 'node src/index.js' (no dev watcher)
+# - NODE_ENV should be set to 'production'
+#
+# Run:
+#   NODE_ENV=production docker-compose down --remove-orphans
+#   NODE_ENV=production docker-compose up -d --build
+#
+# Ensure .env files are configured appropriately for the mode.
+# ========================================================
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: timeless-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - backend-db # only accessible by backend
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-password}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
+    image: ${DOCKER_REGISTRY:-timeless}/backend:${APP_VERSION:-1.0.0}-${GIT_COMMIT_SHORT:-local}-${NODE_ENV:-development}
+    container_name: timeless-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+    networks:
+      - frontend-backend # talks to frontend
+      - backend-db # talks to MongoDB (no frontend access)
+    depends_on:
+      mongodb:
+        condition: service_healthy
+        
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV:-development}
+    image: ${DOCKER_REGISTRY:-timeless}/frontend:${APP_VERSION:-1.0.0}-${GIT_COMMIT_SHORT:-local}-${NODE_ENV:-development}
+    container_name: timeless-frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+    networks:
+      - frontend-backend  # frontend can only talk to backend
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  mongodb_data:
+    name: timeless-mongodb-data
+
+# Custom bridge networks for secure, scoped service communication
+networks:
+  frontend-backend:
+    driver: bridge
+  backend-db:
+    driver: bridge
