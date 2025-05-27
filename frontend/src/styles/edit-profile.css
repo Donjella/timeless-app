@@ -1,0 +1,159 @@
+/* Edit Profile Page Styles */
+.edit-profile-page {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background-color: #f4f4f4;
+  }
+  
+  .edit-profile-container {
+    width: 100%;
+    max-width: 800px;
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .edit-profile-page h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-section {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .form-section h2 {
+    color: #444;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .form-field {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-field.full-width {
+    grid-column: span 2;
+  }
+  
+  .form-field label {
+    margin-bottom: 0.5rem;
+    color: #555;
+    font-size: 0.9rem;
+  }
+  
+  .form-field input,
+  .form-field select {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .form-field input:disabled {
+    background-color: #f4f4f4;
+    cursor: not-allowed;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.5rem;
+  }
+  
+  .save-btn,
+  .cancel-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .save-btn {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+  }
+  
+  .save-btn:hover {
+    background-color: #357abd;
+  }
+  
+  .save-btn:disabled {
+    background-color: #a0c4e8;
+    cursor: not-allowed;
+  }
+  
+  .cancel-btn {
+    background-color: #f4f4f4;
+    color: #333;
+    border: 1px solid #ddd;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #e7e7e7;
+  }
+  
+  /* Error and Success Messages */
+  .error-message,
+  .success-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+  }
+  
+  .error-message {
+    background-color: #ffebee;
+    color: #d32f2f;
+  }
+  
+  .success-message {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  .close-error {
+    background: none;
+    border: none;
+    margin-left: auto;
+    cursor: pointer;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 600px) {
+    .form-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .form-field.full-width {
+      grid-column: span 1;
+    }
+  
+    .form-actions {
+      flex-direction: column-reverse;
+      gap: 1rem;
+    }
+  
+    .save-btn,
+    .cancel-btn {
+      width: 100%;
+    }
+  }

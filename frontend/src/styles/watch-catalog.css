@@ -1,0 +1,495 @@
+/* Watch Catalog Styles */
+
+.watch-catalog-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.watch-catalog-container h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 24px 0 16px 0;
+}
+
+/* Search row */
+.search-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.search-box {
+  position: relative;
+  flex: 1;
+  max-width: 400px;
+  margin-right: 16px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 8px 16px 8px 40px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.add-watch-btn {
+  background-color: #4e7df7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.add-watch-btn:hover {
+  background-color: #3a6ae0;
+}
+
+/* Error message */
+.error-message {
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+  color: #f5222d;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.error-close {
+  background: none;
+  border: none;
+  color: #f5222d;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.api-error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  padding: 24px;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+
+.api-error-message h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #cf1322;
+}
+
+.api-error-message svg {
+  color: #cf1322;
+  flex-shrink: 0;
+}
+
+/* Main layout */
+.catalog-layout {
+  display: flex;
+  gap: 24px;
+}
+
+/* Filters sidebar */
+.filters-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.filter-header h3 {
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 0 8px;
+}
+
+.clear-filters-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: none;
+  border: none;
+  color: #4e7df7;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clear-filters-btn:hover {
+  text-decoration: underline;
+}
+
+.filter-section {
+  margin-bottom: 24px;
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-section h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 12px 0;
+  color: #444;
+}
+
+.brand-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  align-items: flex-start;
+}
+
+.brand-option {
+  display: flex;
+  align-items: center;
+}
+
+.brand-option input {
+  margin-right: 8px;
+  order: -1;
+}
+
+.brand-option label {
+  font-size: 14px;
+  color: #555;
+  margin-left: 8px;
+}
+
+.price-slider {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0 !important; 
+  border: none !important;
+  border-radius: 0;
+}
+
+.price-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+}
+
+.condition-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Watches content */
+.watches-content {
+  flex: 1;
+}
+
+.loading-message,
+.no-results-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Update watches list to display horizontally */
+.watches-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* Watch card */
+.watch-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.watch-image {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.watch-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.watch-info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.watch-info h3 {
+  font-size: 18px;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.watch-price {
+  color: #4e7df7;
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.out-of-stock {
+  background-color: #ff4d4f;
+  color: white;
+  font-size: 12px;
+  padding: 3px 6px;
+  border-radius: 3px;
+  margin-bottom: 12px;
+  align-self: flex-start;
+}
+
+.view-details-btn {
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: auto;
+}
+
+.view-details-btn:hover {
+  background-color: #e5e5e5;
+}
+
+/* Watch details modal */
+.watch-details-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 4px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #333;
+  z-index: 10;
+}
+
+.watch-details {
+  display: flex;
+  padding: 24px;
+}
+
+.watch-details-image {
+  width: 50%;
+  padding-right: 24px;
+}
+
+.watch-details-image img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+}
+
+.watch-details-info {
+  width: 50%;
+}
+
+.watch-details-info h2 {
+  font-size: 24px;
+  margin: 0 0 16px 0;
+  font-weight: 600;
+}
+
+.watch-details-info p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.watch-actions {
+  margin-top: 24px;
+}
+
+.rent-btn {
+  width: 100%;
+  padding: 10px 16px;
+  background-color: #4e7df7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.rent-btn:hover {
+  background-color: #3a6ae0;
+}
+
+.rent-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.edit-btn {
+  flex: 1;
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.edit-btn:hover {
+  background-color: #e5e5e5;
+}
+
+.delete-btn {
+  flex: 1;
+  padding: 8px 16px;
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.delete-btn:hover {
+  background-color: #ff7875;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #4e7df7;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #3a6ae0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .catalog-layout {
+    flex-direction: column;
+  }
+  
+  .filters-sidebar {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .search-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .search-box {
+    width: 100%;
+    max-width: none;
+    margin-right: 0;
+  }
+  
+  .add-watch-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .watch-details {
+    flex-direction: column;
+  }
+  
+  .watch-details-image,
+  .watch-details-info {
+    width: 100%;
+    padding-right: 0;
+  }
+  
+  .watch-details-image {
+    margin-bottom: 24px;
+  }
+}

@@ -1,0 +1,34 @@
+# Node modules
+node_modules
+
+# Logs
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Local env files
+# Exclude .env to prevent secrets from being baked into the image
+# Environment variables are injected at runtime via docker-compose `env_file`
+.env
+.env
+
+# Testing and coverage
+coverage
+.vitest
+*.test.js
+
+# Build output (if present pre-build)
+dist
+
+# IDE / OS files
+.DS_Store
+.vscode
+*.swp
+
+# Version control
+.git
+.gitignore
+
+# Documentation
+README.md
+

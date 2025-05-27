@@ -1,0 +1,1013 @@
+/* admin-dashboard.css */
+
+/* Dashboard Layout */
+.admin-dashboard {
+  padding: 20px 0;
+  width: 100%;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.dashboard-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #333;
+}
+
+.dashboard-content {
+  display: flex;
+  gap: 18px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+}
+
+.sidebar-menu {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  justify-content: flex-start; /* Add this line */
+  width: fit-content; /* Add this line */
+}
+
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #555;
+  font-weight: 500;
+}
+
+.sidebar-item:hover {
+  background-color: #f5f5f5;
+}
+
+.sidebar-item.active {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border-left: 3px solid #1890ff;
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  background-color: #f9f9f9; 
+  border-radius: 8px;
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.content-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px; 
+  width: 100%;
+}
+
+.content-header h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0; 
+}
+
+/* Table Styles */
+.data-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  min-height: 200px; 
+  display: block;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-container table {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 769px) {
+  .data-container table {
+    min-width: 750px;
+    table-layout: fixed;
+  }
+}
+
+.data-container td, 
+.data-container th {
+  min-width: 80px;
+  word-break: break-word;
+  white-space: normal;
+  padding: 14px;
+  text-align: left;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #f9f9f9;
+}
+
+th {
+  font-weight: 600;
+  color: #333;
+}
+
+tbody tr {
+  border-top: 1px solid #eee;
+}
+
+tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Error Message */
+.error-message {
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+  color: #f5222d;
+  padding: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-close-error {
+  background: none;
+  border: none;
+  color: #f5222d;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.api-error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  padding: 24px;
+  border-radius: 8px;
+  margin-top: 24px;
+}
+
+.api-error-message h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: #cf1322;
+}
+
+.api-error-message svg {
+  color: #cf1322;
+  flex-shrink: 0;
+}
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 16px;
+  color: #1890ff;
+  font-style: italic;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  width: 100%;
+}
+
+.empty-state p {
+  margin-bottom: 16px;
+  color: #8c8c8c;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background-color: #4e7df7; 
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #3a6ae0;
+}
+
+.btn-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px; 
+  padding: 0 16px;
+  margin-left: 20px;
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+
+.btn-success {
+  background-color: #52c41a;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #73d13d;
+}
+
+.btn-success.disabled {
+  background-color: #b7eb8f;
+  cursor: not-allowed;
+}
+
+.btn-danger {
+  background-color: #f5222d;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #ff4d4f;
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.btn-secondary:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+.btn-edit {
+  color: #1890ff;
+}
+
+.btn-edit:hover {
+  background-color: #e6f7ff;
+}
+
+.btn-delete {
+  color: #f5222d;
+}
+
+.btn-delete:hover {
+  background-color: #fff1f0;
+}
+
+.add-brand-btn {
+  background-color: #4e7df7; /* vibrant blue */
+  color: white;
+  border: 1px solid #3a6ae0;
+  padding: 6px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.add-brand-btn:hover {
+  background-color: #3a6ae0;
+}
+
+
+/* Disabled buttons */
+.btn[disabled], .btn-icon[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.status-pending {
+  background-color: #fffbe6;
+  color: #faad14;
+}
+
+.status-success {
+  background-color: #f6ffed;
+  color: #52c41a;
+}
+
+/* Search Input */
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  padding: 8px 8px 8px 36px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  min-width: 240px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #bfbfbf;
+}
+
+.ml-2 {
+  margin-left: 0.5rem; 
+}
+
+/* Filter Select */
+.filter-select {
+  padding: 8px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  background-color: white;
+}
+
+/* Icon */
+.icon {
+  margin-right: 4px;
+  font-size: 16px;
+}
+
+/* Enhanced Modal Styles - Consolidated from all inline styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: 20px 0;
+}
+
+.modal-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.confirmation-modal {
+  max-width: 400px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eaeaea;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  padding: 20px;
+  line-height: 1.5;
+}
+
+.modal-content p {
+  margin-top: 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.modal-content p.note {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #eaeaea;
+}
+
+/* Form related styles */
+.modal-form {
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group {
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #4e7df7;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(78, 125, 247, 0.2);
+}
+
+.form-group input.error,
+.form-group select.error {
+  border-color: #ff9999;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-column {
+  flex: 1;
+}
+
+.image-input-container {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.image-input-row {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.image-preview-container {
+  width: 100px;
+  height: 100px;
+  border: 1px dashed #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.image-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #999;
+  font-size: 14px;
+}
+
+.error-text {
+  color: #f5222d;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.help-text {
+  color: #666;
+  font-size: 14px;
+  margin-top: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Styles for brand adding in the watch modal */
+.select-with-button {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.select-with-button select {
+  flex: 1;
+}
+
+.new-brand-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.brand-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Modal Error */
+.modal-error {
+  background-color: #fff2f0;
+  border: 1px solid #ffccc7;
+  border-radius: 4px;
+  color: #f5222d;
+  padding: 12px;
+  margin: 16px 20px 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Notice message for adding brand first */
+.notice-message {
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+  color: #1890ff;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.notice-message .btn-sm {
+  margin-left: 12px;
+}
+
+/* Tablet Media Queries (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  /* User Management specific header layout fix */
+  .content-header {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Title should take full width in user management */
+  .content-header h2 {
+    flex: 0 0 100%;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+  
+  /* Search container should be larger */
+  .content-header .search-container {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Ensure search input behaves correctly */
+  .content-header .search-input {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Properly size the search button */
+  .content-header .search-container .btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  
+  /* Add button should be properly sized */
+  .content-header .btn-add {
+    flex-shrink: 0;
+    min-width: 110px;
+  }
+}
+
+/* Tablet and Small Desktop (769px - 1010px) */
+@media (min-width: 769px) and (max-width: 1010px) {
+  /* Force table to scroll horizontally */
+  .data-container {
+    overflow-x: auto !important;
+    display: block;
+    width: 100% !important;
+  }
+  
+  /* Ensure minimum table width to prevent column collapse */
+  .data-container table {
+    min-width: 850px;
+  }
+  
+  /* Make sure brand column is fully visible */
+  .data-container table th:first-child,
+  .data-container table td:first-child {
+    min-width: 100px;
+    max-width: none;
+    white-space: normal;
+  }
+  
+  /* Make sure no column gets too squeezed */
+  .data-container th, 
+  .data-container td {
+    padding: 10px 8px;
+    white-space: normal;
+    word-break: break-word;
+  }
+}
+
+/* Desktop (min-width: 769px) */
+@media (min-width: 769px) {
+  .dashboard-content {
+    max-width: 100%;
+    display: flex;
+  }
+  
+  .data-container {
+    width: 100% !important;
+    overflow-x: auto !important;
+    box-sizing: border-box !important;
+    padding: 10px !important;
+    max-width: 100% !important;
+  }
+}
+
+/* Mobile (max-width: 768px) */
+@media (max-width: 768px) {
+  /* Primary container/layout fixes */
+  .dashboard-content {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .dashboard-container {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  
+  .sidebar {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .sidebar-menu {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    border-radius: 6px;
+    justify-content: center;
+    margin: 0 auto;
+  }
+  
+  .sidebar-item {
+    width: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 14px;
+  }
+  
+  .main-content {
+    padding: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Header layout fixes */
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .content-header h2 {
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  
+  /* Button adjustments */
+  .btn-add {
+    width: 100%;
+    margin-left: 0;
+    justify-content: center;
+  }
+  
+  /* Search area fixes */
+  .search-container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .search-input {
+    min-width: 0;
+    flex: 1;
+    width: calc(100% - 90px);
+  }
+  
+  .search-container .btn {
+    min-width: 100px;
+  }
+  
+  /* Table responsiveness - card view transformation */
+  .data-container {
+    width: 100% !important;
+    overflow-x: visible !important; /* Changed from auto to visible */
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+  
+  /* Hide table headers on mobile */
+  table thead {
+    display: none;
+  }
+  
+  /* Convert rows to cards */
+  table tbody tr {
+    display: block !important;
+    margin-bottom: 16px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    flex-direction: column !important;
+    max-width: 100%;
+  }
+  
+  /* Style each cell as a row with label */
+  table tbody td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center;
+    padding: 8px 4px;
+    text-align: right;
+    border-bottom: 1px solid #f3f3f3;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    gap: 8px; /* Add small gap between label and value */
+  }
+  
+  /* Add labels for each cell */
+  table tbody td:nth-of-type(1):before { content: "Brand: "; font-weight: 600; text-align: left; min-width: 90px; }
+  table tbody td:nth-of-type(2):before { content: "Model: "; font-weight: 600; text-align: left; min-width: 90px; }
+  table tbody td:nth-of-type(3):before { content: "Year: "; font-weight: 600; text-align: left; min-width: 90px; }
+  table tbody td:nth-of-type(4):before { content: "Price/Day: "; font-weight: 600; text-align: left; min-width: 90px; }
+  table tbody td:nth-of-type(5):before { content: "Condition: "; font-weight: 600; text-align: left; min-width: 90px; }
+  table tbody td:nth-of-type(6):before { content: "Quantity: "; font-weight: 600; text-align: left; min-width: 90px; }
+  
+  /* Actions cell special styling */
+  table tbody td:last-child {
+    border-bottom: none;
+    display: flex !important;
+    justify-content: flex-end !important;
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+  
+  table tbody td:last-child:before {
+    content: "";
+    display: none;
+  }
+  
+  /* Action buttons */
+  .actions {
+    gap: 12px;
+  }
+  
+  .btn-icon {
+    padding: 8px;
+    background-color: #f5f5f5;
+  }
+  
+  /* Error message improvements */
+  .error-message {
+    padding: 12px;
+    align-items: flex-start;
+  }
+  
+  .btn-close-error {
+    padding: 4px;
+  }
+  
+  /* Empty state adjustments */
+  .empty-state {
+    padding: 32px 20px;
+  }
+  
+  .empty-state .btn {
+    width: 100%;
+  }
+  
+  /* Modal container adjustments */
+  .modal-container {
+    width: 92%;
+    max-width: 92%;
+    margin: 4% auto;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding-bottom: 16px;
+  }
+  
+  .confirmation-modal {
+    max-width: 100%;
+  }
+  
+  /* Loading state */
+  .loading {
+    padding: 24px;
+  }
+  
+  /* Watch Modal Form Fixes */
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Convert form row to column on small screens */
+  .form-row {
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+  }
+  
+  /* Fix image container */
+  .image-input-container {
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+  
+  /* Make buttons full width */
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 12px;
+  }
+  
+  .form-actions .btn {
+    width: 100%;
+    padding: 12px;
+  }
+  
+  /* Fix brand selection container */
+  .select-with-button {
+    width: 100%;
+  }
+  
+  .brand-actions {
+    justify-content: space-between;
+  }
+  
+  .brand-actions .btn {
+    flex: 1;
+  }
+  
+  /* Fix width of help text */
+  .help-text,
+  .error-text {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .tab-content {
+    width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+}
