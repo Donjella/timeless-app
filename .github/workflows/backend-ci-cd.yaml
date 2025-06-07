@@ -311,10 +311,19 @@ jobs:
           
       - name: Package application
         run: |
+          echo "Creating dist directory..."
           mkdir -p dist
-          cp -r src/ dist/
-          cp package*.json dist/
-          cp build-manifest.json dist/
+          echo "Copying source files..."
+          cp -r src/ dist/ || echo "Warning: src directory not found"
+          echo "Copying package files..."
+          cp package*.json dist/ || echo "Warning: package files not found"
+          echo "Copying build manifest..."
+          cp build-manifest.json dist/ || echo "Warning: build-manifest.json not found"
+          
+          echo "Build contents:"
+          ls -la
+          echo "Dist contents:"
+          ls -la dist/ || echo "dist directory not found"
           
           # Create Dockerfile for Cloud Run deployment
           cat > dist/Dockerfile << EOF
@@ -329,20 +338,27 @@ jobs:
           EOF
           
           echo "Application packaged successfully"
+          echo "Final dist contents:"
           ls -la dist/
+          echo "Current working directory:"
+          pwd
+          echo "All files in current directory:"
+          ls -la
           
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: backend-build-${{ github.sha }}
-          path: dist/
+          path: |
+            ./dist/
+            ./build-manifest.json
           retention-days: 30
           
       - name: Export build metadata
         uses: actions/upload-artifact@v4
         with:
           name: backend-metadata-${{ github.sha }}
-          path: build-manifest.json
+          path: ./build-manifest.json
           retention-days: 90
 
   # Job 4: Prepare Deployment
