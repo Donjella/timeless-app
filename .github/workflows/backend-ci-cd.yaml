@@ -457,10 +457,8 @@ jobs:
           
           echo "Building and pushing Docker image: $IMAGE_URI"
           
-          # Build and submit to Google Cloud Build
-          gcloud builds submit ./build-output \
-            --tag "$IMAGE_URI" \
-            --timeout=20m
+          # Build and submit to Google Cloud Build (no log streaming)
+          gcloud builds submit ./build-output --tag "$IMAGE_URI" --timeout=20m --quiet
           
           echo "Docker image built and pushed successfully"
           echo "Image URI: $IMAGE_URI"
