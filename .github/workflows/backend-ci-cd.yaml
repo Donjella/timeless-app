@@ -413,7 +413,6 @@ jobs:
           echo "Deployment package validation successful"
           
       - name: Authenticate to Google Cloud
-        if: ${{ secrets.GCP_SA_KEY != '' }}
         run: |
           # Skip if no GCP credentials (for testing without secrets)
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -440,7 +439,6 @@ jobs:
           echo "Google Cloud authentication successful"
 
       - name: Build and Push Docker Image to Container Registry
-        if: ${{ secrets.GCP_SA_KEY != '' }}
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -468,7 +466,6 @@ jobs:
           echo "Image URI: $IMAGE_URI"
 
       - name: Deploy to Cloud Run with Environment Variables
-        if: ${{ secrets.GCP_SA_KEY != '' }}
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -525,7 +522,6 @@ jobs:
           echo "Build ID: ${{ needs.build.outputs.build-id }}"
 
       - name: Store deployment revision info for HD requirement
-        if: ${{ secrets.GCP_SA_KEY != '' }}
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
