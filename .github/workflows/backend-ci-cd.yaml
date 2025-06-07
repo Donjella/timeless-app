@@ -351,6 +351,8 @@ jobs:
     needs: [test, build]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'production')
     
+    # Note: No defaults.run.working-directory for this job since we don't need source code
+    
     steps:
       - name: Debug artifact information
         run: |
@@ -358,6 +360,8 @@ jobs:
           echo "Git SHA: ${{ github.sha }}"
           echo "Build ID from build job: ${{ needs.build.outputs.build-id }}"
           echo "Build timestamp: ${{ needs.build.outputs.build-timestamp }}"
+          echo "Current directory: $(pwd)"
+          echo "Available files: $(ls -la)"
           
       - name: Download build artifacts
         uses: actions/download-artifact@v4
