@@ -115,8 +115,8 @@ jobs:
         with:
           name: backend-test-results-node${{ matrix.node-version }}-${{ github.sha }}
           path: |
-            coverage/
-            test-report.md
+            backend/coverage/
+            backend/test-report.md
           retention-days: 30
           
       # Enhanced GCS upload for HD bonus points
