@@ -26,6 +26,11 @@ on:
         required: false
         type: boolean
         default: false
+      enable_gcs_upload:
+        description: 'Upload logs to Google Cloud Storage'
+        required: false
+        type: boolean
+        default: true
 
 # Environment variables for DRY principles
 env:
@@ -72,8 +77,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-
-        
       - name: Run tests
         if: github.event.inputs.skip_tests != 'true'
         run: npm test
@@ -98,17 +101,104 @@ jobs:
           echo "- Commit: ${{ github.sha }}" >> test-report.md
           echo "- Branch: ${{ github.ref_name }}" >> test-report.md
           echo "- Test Status: $(if [ '${{ github.event.inputs.skip_tests }}' = 'true' ]; then echo 'Skipped'; else echo 'Completed'; fi)" >> test-report.md
+          echo "- Coverage: $(if [ -d coverage ]; then echo 'Generated'; else echo 'Not available'; fi)" >> test-report.md
           
       # Store test artifacts - Persistent storage for HD
-      - name: Upload test results
+      - name: Upload test results to GitHub Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-results-node${{ matrix.node-version }}-${{ github.sha }}
           path: |
-            backend/coverage/
-            backend/test-report.md
+            coverage/
+            test-report.md
           retention-days: 30
+          
+      # Enhanced GCS upload for HD bonus points
+      - name: Upload test results to Google Cloud Storage
+        if: always() && github.event.inputs.enable_gcs_upload != 'false' && (secrets.GCP_SA_KEY != '' || github.event_name == 'workflow_dispatch')
+        run: |
+          # Skip if no GCP credentials (for testing without secrets)
+          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
+            echo "GCP credentials not configured, skipping GCS upload"
+            echo "This is normal for testing without cloud setup"
+            exit 0
+          fi
+          
+          # Setup GCP authentication
+          echo "${{ secrets.GCP_SA_KEY }}" | base64 -d > /tmp/gcp-key.json
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-key.json
+          
+          # Install gcloud if not available
+          if ! command -v gcloud &> /dev/null; then
+            echo "Installing Google Cloud SDK..."
+            curl -sSL https://sdk.cloud.google.com | bash
+            export PATH="$HOME/google-cloud-sdk/bin:$PATH"
+          fi
+          
+          # Authenticate and configure
+          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
+          gcloud config set project ${{ secrets.GCP_PROJECT_ID || 'timeless-rental-app' }}
+          
+          # Determine environment and bucket
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            BUCKET="${{ secrets.GCS_LOGS_BUCKET_PROD || 'timeless-ci-logs-prod' }}"
+            ENV="production"
+          else
+            BUCKET="${{ secrets.GCS_LOGS_BUCKET_STAGING || 'timeless-ci-logs-staging' }}"
+            ENV="staging"
+          fi
+          
+          # Create structured log path with HD-level organization
+          LOG_PATH="backend/$ENV/${{ github.sha }}/node-${{ matrix.node-version }}/$(date +%Y-%m-%d-%H-%M-%S)"
+          
+          # Upload test artifacts with parallel processing
+          echo "Uploading test results to: gs://$BUCKET/$LOG_PATH"
+          
+          if [ -d coverage ]; then
+            gsutil -m cp -r coverage/ gs://$BUCKET/$LOG_PATH/coverage/
+          fi
+          
+          if [ -f test-report.md ]; then
+            gsutil cp test-report.md gs://$BUCKET/$LOG_PATH/test-report.md
+            
+            # Set metadata for HD-level organization
+            gsutil setmeta \
+              -h "x-goog-meta-git-sha:${{ github.sha }}" \
+              -h "x-goog-meta-environment:$ENV" \
+              -h "x-goog-meta-workflow-run:${{ github.run_id }}" \
+              -h "x-goog-meta-node-version:${{ matrix.node-version }}" \
+              -h "x-goog-meta-test-status:$(if [ '${{ github.event.inputs.skip_tests }}' = 'true' ]; then echo 'skipped'; else echo 'completed'; fi)" \
+              gs://$BUCKET/$LOG_PATH/test-report.md
+          fi
+          
+          # Create HD-level index file for easy browsing
+          cat > log-index.json << EOF
+          {
+            "workflow_run": "${{ github.run_id }}",
+            "git_sha": "${{ github.sha }}",
+            "git_ref": "${{ github.ref_name }}",
+            "environment": "$ENV",
+            "node_version": "${{ matrix.node-version }}",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "test_status": "$(if [ '${{ github.event.inputs.skip_tests }}' = 'true' ]; then echo 'skipped'; else echo 'completed'; fi)",
+            "artifacts": {
+              "coverage": "gs://$BUCKET/$LOG_PATH/coverage/",
+              "test_report": "gs://$BUCKET/$LOG_PATH/test-report.md",
+              "index": "gs://$BUCKET/$LOG_PATH/index.json"
+            },
+            "github_artifacts": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }
+          EOF
+          
+          gsutil cp log-index.json gs://$BUCKET/$LOG_PATH/index.json
+          
+          # Cleanup sensitive files
+          rm -f /tmp/gcp-key.json log-index.json
+          
+          echo "Test results uploaded successfully!"
+          echo "View at: https://console.cloud.google.com/storage/browser/$BUCKET/$LOG_PATH"
+        continue-on-error: true
           
   # Job 2: Security and Dependency Audit
   security-audit:
@@ -132,6 +222,19 @@ jobs:
         
       - name: Run security audit
         run: |
+          echo "# Security Audit Report" > security-report.md
+          echo "## Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> security-report.md
+          echo "## Commit: ${{ github.sha }}" >> security-report.md
+          echo "" >> security-report.md
+          
+          echo "## NPM Audit Results" >> security-report.md
+          npm audit --audit-level=moderate >> security-report.md 2>&1 || true
+          
+          echo "" >> security-report.md
+          echo "## Package Versions" >> security-report.md
+          npm list --depth=0 >> security-report.md 2>&1 || true
+          
+          # Also create plain text version for compatibility
           npm audit --audit-level=moderate > security-report.txt 2>&1 || true
           echo "Security audit completed on $(date)" >> security-report.txt
           
@@ -139,7 +242,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-security-audit-${{ github.sha }}
-          path: backend/security-report.txt
+          path: |
+            security-report.md
+            security-report.txt
           retention-days: 90
           
   # Job 3: Build and Package
@@ -151,6 +256,7 @@ jobs:
     outputs:
       build-id: ${{ steps.build-info.outputs.build-id }}
       build-timestamp: ${{ steps.build-info.outputs.timestamp }}
+      environment: ${{ steps.build-info.outputs.environment }}
       
     steps:
       - name: Checkout code
@@ -171,8 +277,11 @@ jobs:
         run: |
           BUILD_ID="$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::8}"
           TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          ENVIRONMENT="${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}"
+          
           echo "build-id=$BUILD_ID" >> $GITHUB_OUTPUT
           echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
+          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
           
           # Create build manifest - Workflow data export for HD
           cat > build-manifest.json << EOF
@@ -182,13 +291,23 @@ jobs:
             "git_ref": "${{ github.ref_name }}",
             "timestamp": "$TIMESTAMP",
             "node_version": "${{ env.NODE_VERSION }}",
-            "environment": "${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}",
+            "environment": "$ENVIRONMENT",
+            "deployment_type": "${{ github.event.inputs.deployment_type || 'auto' }}",
             "dependencies": {
               "production_only": true,
               "audit_status": "pending"
+            },
+            "docker": {
+              "base_image": "node:${{ env.NODE_VERSION }}-alpine",
+              "target_platform": "linux/amd64"
             }
           }
           EOF
+          
+          echo "Build information generated:"
+          echo "  Build ID: $BUILD_ID"
+          echo "  Environment: $ENVIRONMENT"
+          echo "  Timestamp: $TIMESTAMP"
           
       - name: Package application
         run: |
@@ -197,33 +316,83 @@ jobs:
           cp package*.json dist/
           cp build-manifest.json dist/
           
+          # Create Dockerfile for Cloud Run deployment
+          cat > dist/Dockerfile << EOF
+          FROM node:${{ env.NODE_VERSION }}-alpine
+          WORKDIR /app
+          COPY package*.json ./
+          RUN npm ci --omit=dev
+          COPY src/ ./src/
+          EXPOSE 8080
+          ENV PORT=8080
+          CMD ["node", "src/index.js"]
+          EOF
+          
+          echo "Application packaged successfully"
+          ls -la dist/
+          
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: backend-build-${{ steps.build-info.outputs.build-id }}
-          path: backend/dist/
+          path: dist/
           retention-days: 30
           
       - name: Export build metadata
         uses: actions/upload-artifact@v4
         with:
           name: backend-metadata-${{ github.sha }}
-          path: backend/build-manifest.json
+          path: build-manifest.json
           retention-days: 90
 
-  # Job 4: Prepare Deployment (placeholder - enhance this next)
+  # Job 4: Prepare Deployment
   prepare-deployment:
     runs-on: ubuntu-latest
     needs: [test, build]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'production')
     
     steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-build-${{ needs.build.outputs.build-id }}
+          path: ./build-output/
+          
+      - name: Validate deployment package
+        run: |
+          echo "Validating deployment package..."
+          ls -la ./build-output/
+          
+          # Check required files
+          if [[ ! -f "./build-output/package.json" ]]; then
+            echo "ERROR: package.json not found"
+            exit 1
+          fi
+          
+          if [[ ! -d "./build-output/src" ]]; then
+            echo "ERROR: src directory not found"
+            exit 1
+          fi
+          
+          if [[ ! -f "./build-output/Dockerfile" ]]; then
+            echo "ERROR: Dockerfile not found"
+            exit 1
+          fi
+          
+          echo "Deployment package validation successful"
+          
       - name: Prepare deployment configuration
         run: |
           echo "Deployment preparation completed"
-          echo "Build ID: ${{ needs.build.outputs.build-id }}"
-          echo "Ready for deployment to production environment"
+          echo "  Build ID: ${{ needs.build.outputs.build-id }}"
+          echo "  Environment: ${{ needs.build.outputs.environment }}"
+          echo "  Timestamp: ${{ needs.build.outputs.build-timestamp }}"
+          echo "  Ready for Google Cloud Run deployment"
           
-      # Placeholder for actual deployment -  add this in step 2
-      - name: Deploy to production (placeholder)
-        run: echo "Deployment step will be implemented in next phase"
+      # Placeholder for Google Cloud Run deployment
+      - name: Deploy to Google Cloud Run (placeholder)
+        run: |
+          echo "Google Cloud Run deployment will be implemented in next phase"
+          echo "  Target: Cloud Run service 'timeless-backend'"
+          echo "  Region: us-central1"
+          echo "  Image: gcr.io/PROJECT_ID/timeless-backend:${{ needs.build.outputs.build-id }}"
