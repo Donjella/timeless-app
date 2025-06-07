@@ -345,6 +345,17 @@ jobs:
           echo "All files in current directory:"
           ls -la
           
+      - name: Debug artifacts before upload
+        run: |
+          echo "Current working directory: $(pwd)"
+          echo "Contents of current directory:"
+          find . -maxdepth 2 -type f | head -20
+          echo "Checking dist specifically:"
+          ls -la dist/ 2>/dev/null || echo "dist directory not found"
+          echo "Testing artifact paths:"
+          test -d dist && echo "✓ dist exists" || echo "✗ dist missing"
+          test -f build-manifest.json && echo "✓ build-manifest.json exists" || echo "✗ build-manifest.json missing"
+          
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
