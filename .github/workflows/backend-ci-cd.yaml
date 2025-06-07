@@ -351,7 +351,10 @@ jobs:
     needs: [test, build]
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'production')
     
-    # Note: No defaults.run.working-directory for this job since we don't need source code
+    # Override the global default working directory for this job
+    defaults:
+      run:
+        working-directory: .
     
     steps:
       - name: Debug artifact information
