@@ -104,7 +104,7 @@ jobs:
       # Store test artifacts - Persistent storage for HD
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-test-results-node${{ matrix.node-version }}-${{ github.sha }}
           path: |
@@ -138,7 +138,7 @@ jobs:
           echo "Security audit completed on $(date)" >> security-report.txt
           
       - name: Upload security report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-security-audit-${{ github.sha }}
           path: backend/security-report.txt
@@ -200,14 +200,14 @@ jobs:
           cp build-manifest.json dist/
           
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-build-${{ steps.build-info.outputs.build-id }}
           path: backend/dist/
           retention-days: 30
           
       - name: Export build metadata
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-metadata-${{ github.sha }}
           path: backend/build-manifest.json
