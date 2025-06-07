@@ -116,7 +116,7 @@ jobs:
           
       # Enhanced GCS upload for HD bonus points
       - name: Upload test results to Google Cloud Storage
-        if: always() && github.event.inputs.enable_gcs_upload != 'false' && (secrets.GCP_SA_KEY != '' || github.event_name == 'workflow_dispatch')
+        if: always() && github.event.inputs.enable_gcs_upload != 'false'
         run: |
           # Skip if no GCP credentials (for testing without secrets)
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
