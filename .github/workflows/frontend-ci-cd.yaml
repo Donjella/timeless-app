@@ -81,7 +81,20 @@ jobs:
           
       - name: Run test coverage
         if: github.event.inputs.skip_tests != 'true'
-        run: npm run coverage
+        run: |
+          # Check if coverage dependency exists
+          if npm list @vitest/coverage-v8 &>/dev/null; then
+            echo "Running coverage with @vitest/coverage-v8..."
+            npm run coverage
+          else
+            echo "Coverage dependency @vitest/coverage-v8 not found"
+            echo "Installing coverage dependency..."
+            npm install @vitest/coverage-v8 --no-save
+            npm run coverage
+          fi
+        env:
+          VITE_API_URL: http://localhost:5000
+          VITE_NODE_ENV: test
         continue-on-error: true
         
       - name: Generate test report
