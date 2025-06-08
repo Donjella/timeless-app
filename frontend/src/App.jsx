@@ -78,6 +78,8 @@ function AppRoutes() {
         <Route path="/" element={<BasePageLayout />}>
           {/* Public routes */}
           <Route index element={<HomePage />} />
+          {/* Add route for /index.html to handle GCS direct access */}
+          <Route path="index.html" element={<Navigate to="/" replace />} />
           <Route path="catalog" element={<WatchCatalog />} />
           <Route path="about" element={<About />} />
 
