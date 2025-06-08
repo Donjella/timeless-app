@@ -25,6 +25,12 @@ import { AuthProvider } from '/src/contexts/AuthProvider.jsx';
 function AppRoutes() {
   const { authData } = useAuthData();
 
+  useEffect(() => {
+    if (window.location.pathname === '/index.html') {
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
+
   // Check if user is an admin
   const isAdmin =
     authData.isAuthenticated && authData.user && authData.user.role === 'admin';
@@ -79,7 +85,7 @@ function AppRoutes() {
           {/* Public routes */}
           <Route index element={<HomePage />} />
           {/* Add route for /index.html to handle GCS direct access */}
-          <Route path="index.html" element={<HomePage />} />
+          <Route path="index.html" element={<Navigate to="/" replace />} />
           <Route path="catalog" element={<WatchCatalog />} />
           <Route path="about" element={<About />} />
 
@@ -158,14 +164,6 @@ function AppRoutes() {
 
 // Main App component that provides the AuthContext
 function App() {
-  const location = window.location.pathname;
-
-  if (location === '/index.html') {
-    window.history.replaceState({}, '', '/');
-    // Prevent app from rendering for a tick
-    return null;
-  }
-
   return (
     <AuthProvider>
       <AppRoutes />
