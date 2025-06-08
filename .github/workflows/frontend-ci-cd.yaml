@@ -308,7 +308,7 @@ jobs:
       - name: Build project
         run: |
           # Use the same backend URL for both environments
-          export VITE_API_URL="${{ secrets.PROD_API_URL || 'https://timeless-backend-461ftmtcsq-ts.a.run.app' }}"
+          export VITE_API_URL="${{ secrets.PROD_API_URL || 'https://timeless-backend-46lftmtmsq-ts.a.run.app/' }}"
           
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             export VITE_NODE_ENV="production"
@@ -366,7 +366,7 @@ jobs:
             "node_version": "${{ env.NODE_VERSION }}",
             "environment": "${{ steps.build-info.outputs.environment }}",
             "build_size": "${{ steps.build-analysis.outputs.size }}",
-            "api_endpoint": "${{ secrets.PROD_API_URL || 'https://timeless-backend-461ftmtcsq-ts.a.run.app' }}",
+            "api_endpoint": "${{ secrets.PROD_API_URL || 'https://timeless-backend-46lftmtmsq-ts.a.run.app/' }}",
             "deployment_type": "${{ github.event.inputs.deployment_type || 'auto' }}",
             "assets": {
               "dist_folder": "./dist",
