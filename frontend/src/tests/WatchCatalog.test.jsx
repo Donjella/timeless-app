@@ -218,6 +218,7 @@ describe('WatchCatalog Component', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/login?redirect=/checkout');
   });
 
+  // Updated delete test with proper async waiting
   it('should delete watch when admin clicks delete and confirms', async () => {
     localStorage.setItem(
       'auth',
@@ -240,10 +241,16 @@ describe('WatchCatalog Component', () => {
     fireEvent.click(deleteButton);
 
     expect(confirmSpy).toHaveBeenCalled();
+    
     await waitFor(() => {
       expect(api.watches.delete).toHaveBeenCalledWith('watch1');
     });
-    expect(screen.queryByText('Delete')).not.toBeInTheDocument();
+    
+    // Also wait for UI to update
+    await waitFor(() => {
+      expect(screen.queryByText('Delete')).not.toBeInTheDocument();
+    });
+    
     confirmSpy.mockRestore();
   });
-});
+}); 
