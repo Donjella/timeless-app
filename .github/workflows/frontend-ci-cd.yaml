@@ -498,7 +498,7 @@ jobs:
           fi
           
           # Configure bucket for website hosting
-          gsutil web set -m index.html -e 404.html gs://$BUCKET_NAME
+          gsutil web set -m index.html -e index.html gs://$BUCKET_NAME
           
           # Make bucket publicly readable
           gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
