@@ -29,6 +29,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : [
       'http://localhost:5173',
       'https://storage.googleapis.com',
+      'https://storage.googleapis.com/timeless-frontend-prod'
     ];
 
 const corsOptions = {

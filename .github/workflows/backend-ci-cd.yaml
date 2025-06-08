@@ -8,10 +8,10 @@ on:
     branches: [main]
     paths: ['backend/**']
   schedule:
-    # Weekly dependency audit - Complex trigger for HD
+    # Weekly dependency security audit
     - cron: '0 2 * * 1'
   workflow_dispatch:
-    # Manual trigger with conditions - Complex trigger for HD
+    # Manual deployment trigger with environment selection
     inputs:
       deployment_type:
         description: 'Deployment type'
@@ -32,7 +32,7 @@ on:
         type: boolean
         default: true
 
-# Environment variables for DRY principles
+# Global environment variables following DRY principles
 env:
   NODE_VERSION: '20'
   WORKING_DIR: './backend'
@@ -42,11 +42,11 @@ defaults:
     working-directory: ./backend
 
 jobs:
-  # Job 1: Testing and Quality Assurance
+  # Comprehensive testing across multiple Node.js versions
   test:
     runs-on: ubuntu-latest
     
-    # Service containers for testing - Complex setup for HD
+    # MongoDB service container for integration testing
     services:
       mongodb:
         image: mongo:6.0
@@ -58,7 +58,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     
-    # Strategy matrix for multiple Node versions - Optimization for HD
+    # Matrix strategy for cross-version compatibility testing
     strategy:
       matrix:
         node-version: [18, 20]
@@ -77,7 +77,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Run tests
+      - name: Run test suite
         if: github.event.inputs.skip_tests != 'true'
         run: npm test
         env:
@@ -86,7 +86,7 @@ jobs:
           NODE_ENV: test
           PORT: 5000
           
-      - name: Run test coverage
+      - name: Generate test coverage report
         if: github.event.inputs.skip_tests != 'true'
         run: npm run test:coverage
         env:
@@ -96,7 +96,7 @@ jobs:
           PORT: 5000
         continue-on-error: true
         
-      - name: Generate test report
+      - name: Generate comprehensive test report
         if: always()
         run: |
           echo "# Test Report for Backend" > test-report.md
@@ -108,7 +108,7 @@ jobs:
           echo "- Test Status: $(if [ '${{ github.event.inputs.skip_tests }}' = 'true' ]; then echo 'Skipped'; else echo 'Completed'; fi)" >> test-report.md
           echo "- Coverage: $(if [ -d coverage ]; then echo 'Generated'; else echo 'Not available'; fi)" >> test-report.md
           
-      # Store test artifacts - Persistent storage for HD
+      # Persistent artifact storage in GitHub Actions
       - name: Upload test results to GitHub Artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -119,7 +119,7 @@ jobs:
             backend/test-report.md
           retention-days: 30
           
-      # Enhanced GCS upload for HD bonus points
+      # Enhanced persistent storage with structured organization
       - name: Upload test results to Google Cloud Storage
         if: always() && github.event.inputs.enable_gcs_upload != 'false'
         run: |
@@ -154,7 +154,7 @@ jobs:
             ENV="staging"
           fi
           
-          # Create structured log path with HD-level organization
+          # Create structured log path for organized storage
           LOG_PATH="backend/$ENV/${{ github.sha }}/node-${{ matrix.node-version }}/$(date +%Y-%m-%d-%H-%M-%S)"
           
           # Upload test artifacts with parallel processing
@@ -167,7 +167,7 @@ jobs:
           if [ -f test-report.md ]; then
             gsutil cp test-report.md gs://$BUCKET/$LOG_PATH/test-report.md
             
-            # Set metadata for HD-level organization
+            # Set metadata for organized storage and searchability
             gsutil setmeta \
               -h "x-goog-meta-git-sha:${{ github.sha }}" \
               -h "x-goog-meta-environment:$ENV" \
@@ -177,7 +177,7 @@ jobs:
               gs://$BUCKET/$LOG_PATH/test-report.md
           fi
           
-          # Create HD-level index file for easy browsing
+          # Create index file for workflow data export and easy browsing
           cat > log-index.json << EOF
           {
             "workflow_run": "${{ github.run_id }}",
@@ -205,7 +205,7 @@ jobs:
           echo "View at: https://console.cloud.google.com/storage/browser/$BUCKET/$LOG_PATH"
         continue-on-error: true
           
-  # Job 2: Security and Dependency Audit
+  # Automated security and dependency auditing
   security-audit:
     runs-on: ubuntu-latest
     needs: test
@@ -225,7 +225,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      - name: Run security audit
+      - name: Run comprehensive security audit
         run: |
           echo "# Security Audit Report" > security-report.md
           echo "## Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> security-report.md
@@ -243,7 +243,7 @@ jobs:
           npm audit --audit-level=moderate > security-report.txt 2>&1 || true
           echo "Security audit completed on $(date)" >> security-report.txt
           
-      - name: Upload security report
+      - name: Upload security audit reports
         uses: actions/upload-artifact@v4
         with:
           name: backend-security-audit-${{ github.sha }}
@@ -252,7 +252,7 @@ jobs:
             backend/security-report.txt
           retention-days: 90
           
-  # Job 3: Build and Package
+  # Production-ready build and packaging
   build:
     runs-on: ubuntu-latest
     needs: test
@@ -274,10 +274,10 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
           
-      - name: Install dependencies
+      - name: Install production dependencies only
         run: npm ci --omit=dev
         
-      - name: Generate build information
+      - name: Generate build metadata and manifest
         id: build-info
         run: |
           BUILD_ID="$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::8}"
@@ -288,7 +288,7 @@ jobs:
           echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
           echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
           
-          # Create build manifest - Workflow data export for HD
+          # Create comprehensive build manifest for workflow data export
           cat > build-manifest.json << EOF
           {
             "build_id": "$BUILD_ID",
@@ -314,7 +314,7 @@ jobs:
           echo "  Environment: $ENVIRONMENT"
           echo "  Timestamp: $TIMESTAMP"
           
-      - name: Package application
+      - name: Package application for deployment
         run: |
           echo "Creating dist directory..."
           mkdir -p dist
@@ -332,7 +332,7 @@ jobs:
           echo "Dist contents:"
           ls -la dist/ || echo "dist directory not found"
           
-          # Create Dockerfile for Cloud Run deployment
+          # Create optimized Dockerfile for Cloud Run deployment
           cat > dist/Dockerfile << EOF
           FROM node:${{ env.NODE_VERSION }}-alpine
           WORKDIR /app
@@ -360,7 +360,7 @@ jobs:
           if-no-files-found: error
           retention-days: 30
           
-      - name: Export build metadata
+      - name: Export build metadata for deployment tracking
         uses: actions/upload-artifact@v4
         with:
           name: backend-metadata-${{ github.sha }}
@@ -368,7 +368,7 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-  # Job 4: Deploy to Google Cloud Run - HD LEVEL DEPLOYMENT
+  # Google Cloud Run deployment with environment-specific configuration
   deploy:
     runs-on: ubuntu-latest
     needs: [test, build]
@@ -389,7 +389,7 @@ jobs:
           name: backend-build-${{ github.sha }}
           path: ./build-output/
           
-      - name: Validate deployment package
+      - name: Validate deployment package integrity
         run: |
           echo "Validating deployment package..."
           ls -la ./build-output/
@@ -412,7 +412,7 @@ jobs:
           
           echo "Deployment package validation successful"
           
-      - name: Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud Platform
         run: |
           # Skip if no GCP credentials (for testing without secrets)
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -438,7 +438,7 @@ jobs:
           
           echo "Google Cloud authentication successful"
 
-      - name: Build and Push Docker Image to Container Registry
+      - name: Build and push container image to Container Registry
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -457,13 +457,13 @@ jobs:
           
           echo "Building and pushing Docker image: $IMAGE_URI"
           
-          # Build and submit to Google Cloud Build (no log streaming)
+          # Build and submit to Google Cloud Build with optimized settings
           gcloud builds submit ./build-output --tag "$IMAGE_URI" --timeout=20m --quiet
           
           echo "Docker image built and pushed successfully"
           echo "Image URI: $IMAGE_URI"
 
-      - name: Deploy to Cloud Run with Environment Variables
+      - name: Deploy to Cloud Run with environment-specific configuration
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -492,7 +492,7 @@ jobs:
           
           echo "Deploying to Cloud Run service '$SERVICE_NAME'..."
           
-          # Deploy with environment variables and security settings
+          # Deploy with comprehensive environment variables and security settings
           gcloud run deploy "$SERVICE_NAME" \
             --image "$IMAGE_URI" \
             --platform managed \
@@ -519,7 +519,7 @@ jobs:
           echo "Environment: $ENV"
           echo "Build ID: ${{ needs.build.outputs.build-id }}"
 
-      - name: Store deployment revision info for HD requirement
+      - name: Preserve deployment revision information
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -536,14 +536,14 @@ jobs:
             ENV="development"
           fi
           
-          # Get revision information for HD requirement
+          # Get current revision information
           REVISION_NAME=$(gcloud run revisions list \
             --service="$SERVICE_NAME" \
             --region=${{ secrets.GCP_REGION || 'australia-southeast1' }} \
             --limit=1 \
             --format='value(metadata.name)')
           
-          # Create deployment revision manifest - HD requirement
+          # Create comprehensive deployment revision manifest
           cat > deployment-revision.json << EOF
           {
             "deployment_id": "${{ needs.build.outputs.build-id }}",
@@ -563,10 +563,10 @@ jobs:
           }
           EOF
           
-          echo "Deployment revision information stored for HD requirement"
+          echo "Deployment revision information stored"
           cat deployment-revision.json
 
-      - name: Upload deployment artifacts for HD requirement
+      - name: Upload deployment revision artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -575,6 +575,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 90
 
-      - name: Cleanup credentials
+      - name: Cleanup sensitive credentials
         if: always()
         run: rm -f /tmp/gcp-key.json
