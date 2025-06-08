@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from 'react'; 
 import PropTypes from 'prop-types';
 import {
   BrowserRouter as Router,
@@ -24,6 +24,12 @@ import { AuthProvider } from '/src/contexts/AuthProvider.jsx';
 // Create an inner component that uses the auth context
 function AppRoutes() {
   const { authData } = useAuthData();
+
+  useEffect(() => {
+    if (window.location.pathname === '/index.html') {
+      window.history.replaceState({}, '', '/');
+    }
+  }, []);
 
   // Check if user is an admin
   const isAdmin =
@@ -158,13 +164,6 @@ function AppRoutes() {
 
 // Main App component that provides the AuthContext
 function App() {
-  //  Normalize GCS direct link to root
-  useEffect(() => {
-    if (window.location.pathname === '/index.html') {
-      window.history.replaceState({}, '', '/');
-    }
-  }, []);
-
   return (
     <AuthProvider>
       <AppRoutes />
