@@ -4,11 +4,11 @@ import react from '@vitejs/plugin-react';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/timeless-frontend-prod/',  // ✅ Match your GCS bucket path
+  base: '/timeless-frontend-prod/',  
   build: {
     outDir: 'dist',
     rollupOptions: {
-      input: 'index.html',  // ✅ No leading slash
+      input: 'index.html',  
     },
   },
   test: {
