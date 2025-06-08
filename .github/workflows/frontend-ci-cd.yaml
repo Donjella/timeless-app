@@ -1,325 +1,4 @@
-# Job 2: Security and Dependency Audit
-  security-audit:
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Run security audit
-        run: |
-          echo "# Security Audit Report for Frontend" > security-report.md
-          echo "## Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> security-report.md
-          echo "## Commit: ${{ github.sha }}" >> security-report.md
-          echo "" >> security-report.md
-          
-          echo "## NPM Audit Results" >> security-report.md
-          npm audit --audit-level=moderate >> security-report.md 2>&1 || true
-          
-          echo "" >> security-report.md
-          echo "## Package Versions" >> security-report.md
-          npm list --depth=0 >> security-report.md 2>&1 || true
-          
-          echo "" >> security-report.md
-          echo "## Outdated Packages" >> security-report.md
-          npm outdated >> security-report.md 2>&1 || true
-          
-          # Also create plain text version for compatibility
-          npm audit --audit-level=moderate > security-report.txt 2>&1 || true
-          echo "Frontend security audit completed on $(date)" >> security-report.txt
-          
-      - name: Upload security reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-security-audit-${{ github.sha }}
-          path: |
-            frontend/security-report.md
-            frontend/security-report.txt
-          if-no-files-found: warn
-          retention-days: 90
-          
-  # Job 3: Build and Package
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.event.inputs.skip_build != 'true'
-    
-    outputs:
-      build-id: ${{ steps.build-info.outputs.build-id }}
-      build-timestamp: ${{ steps.build-info.outputs.timestamp }}
-      build-size: ${{ steps.build-analysis.outputs.size }}
-      environment: ${{ steps.build-info.outputs.environment }}
-      
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Generate build information
-        id: build-info
-        run: |
-          BUILD_ID="$(date +%Y%m%d-%H%M%S)-${GITHUB_SHA::8}"
-          TIMESTAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          ENVIRONMENT="${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}"
-          
-          echo "build-id=$BUILD_ID" >> $GITHUB_OUTPUT
-          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
-          echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
-          
-          echo "Build information generated:"
-          echo "  Build ID: $BUILD_ID"
-          echo "  Environment: $ENVIRONMENT"
-          echo "  Timestamp: $TIMESTAMP"
-          
-      - name: Build project
-        run: |
-          # Use the same backend URL for both environments
-          export VITE_API_URL="${{ secrets.PROD_API_URL || 'https://timeless-backend-461ftmtcsq-ts.a.run.app' }}"
-          
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            export VITE_NODE_ENV="production"
-          else
-            export VITE_NODE_ENV="development"
-          fi
-          
-          echo "Building with configuration:"
-          echo "  API URL: $VITE_API_URL"
-          echo "  Environment: $VITE_NODE_ENV"
-          
-          npm run build
-          
-          echo "Build completed successfully"
-          echo "Dist directory contents:"
-          ls -la dist/ 2>/dev/null || echo "Dist directory not found"
-          
-      - name: Analyze build size
-        id: build-analysis
-        run: |
-          if [ -d dist ]; then
-            BUILD_SIZE=$(du -sh dist/ | cut -f1)
-            echo "size=$BUILD_SIZE" >> $GITHUB_OUTPUT
-            
-            # Create build analysis report
-            echo "# Build Analysis Report" > build-analysis.md
-            echo "- Build Size: $BUILD_SIZE" >> build-analysis.md
-            echo "- Files Count: $(find dist/ -type f | wc -l)" >> build-analysis.md
-            echo "- JS Files: $(find dist/ -name "*.js" | wc -l)" >> build-analysis.md
-            echo "- CSS Files: $(find dist/ -name "*.css" | wc -l)" >> build-analysis.md
-            echo "- HTML Files: $(find dist/ -name "*.html" | wc -l)" >> build-analysis.md
-            echo "- Asset Files: $(find dist/ -name "*.png" -o -name "*.jpg" -o -name "*.svg" -o -name "*.ico" | wc -l)" >> build-analysis.md
-            
-            # List largest files
-            echo "" >> build-analysis.md
-            echo "## Largest Files:" >> build-analysis.md
-            find dist/ -type f -exec du -h {} + | sort -hr | head -10 >> build-analysis.md
-            
-            echo "Build size analysis completed: $BUILD_SIZE"
-          else
-            echo "size=0MB" >> $GITHUB_OUTPUT
-            echo "ERROR: dist directory not found after build"
-            exit 1
-          fi
-          
-      - name: Create deployment manifest
-        run: |
-          # Create deployment manifest for workflow data export
-          cat > deployment-manifest.json << EOF
-          {
-            "build_id": "${{ steps.build-info.outputs.build-id }}",
-            "git_sha": "${{ github.sha }}",
-            "git_ref": "${{ github.ref_name }}",
-            "timestamp": "${{ steps.build-info.outputs.timestamp }}",
-            "node_version": "${{ env.NODE_VERSION }}",
-            "environment": "${{ steps.build-info.outputs.environment }}",
-            "build_size": "${{ steps.build-analysis.outputs.size }}",
-            "api_endpoint": "${{ github.ref == 'refs/heads/main' && secrets.PROD_API_URL || secrets.PROD_API_URL }}",
-            "deployment_type": "${{ github.event.inputs.deployment_type || 'auto' }}",
-            "assets": {
-              "dist_folder": "./dist",
-              "entry_point": "index.html",
-              "build_tool": "vite"
-            },
-            "vite_config": {
-              "base_url": "/",
-              "output_dir": "dist"
-            }
-          }
-          EOF
-          
-          echo "Deployment manifest created:"
-          cat deployment-manifest.json
-          
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build-${{ github.sha }}
-          path: |
-            frontend/dist/
-            frontend/deployment-manifest.json
-          if-no-files-found: error
-          retention-days: 30
-          
-      - name: Upload build analysis
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-build-analysis-${{ github.sha }}
-          path: frontend/build-analysis.md
-          if-no-files-found: warn
-          retention-days: 30
-
-  # Job 4: Deploy to Google Cloud Storage
-  deploy:
-    runs-on: ubuntu-latest
-    needs: [test, build]
-    if: |
-      github.ref == 'refs/heads/main' ||
-      github.ref == 'refs/heads/develop' ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'production')
-    
-    # Override global working directory for deployment job
-    defaults:
-      run:
-        working-directory: .
-    
-    outputs:
-      website-url: ${{ steps.deploy-info.outputs.website-url }}
-      bucket-name: ${{ steps.deploy-info.outputs.bucket-name }}
-    
-    steps:
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: frontend-build-${{ github.sha }}
-          path: ./frontend-build/
-          
-      - name: Validate deployment package
-        run: |
-          echo "Validating deployment package..."
-          echo "Build artifacts structure:"
-          find ./frontend-build -type f | head -20
-          
-          # Check if critical files exist
-          if [[ ! -f "./frontend-build/dist/index.html" ]]; then
-            echo "ERROR: index.html not found in build"
-            exit 1
-          fi
-          
-          if [[ ! -f "./frontend-build/deployment-manifest.json" ]]; then
-            echo "ERROR: deployment-manifest.json not found"
-            exit 1
-          fi
-          
-          echo "Deployment package validation successful"
-          
-      - name: Authenticate to Google Cloud
-        run: |
-          # Skip if no GCP credentials
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "GCP credentials not configured, skipping deployment"
-            echo "This is normal for testing without cloud setup"
-            exit 0
-          fi
-          
-          # Setup GCP authentication
-          echo "${{ secrets.GCP_SA_KEY }}" | base64 -d > /tmp/gcp-key.json
-          
-          # Install gcloud if not available
-          if ! command -v gcloud &> /dev/null; then
-            echo "Installing Google Cloud SDK..."
-            curl -sSL https://sdk.cloud.google.com | bash
-            export PATH="$HOME/google-cloud-sdk/bin:$PATH"
-          fi
-          
-          # Authenticate and configure
-          gcloud auth activate-service-account --key-file=/tmp/gcp-key.json
-          gcloud config set project ${{ secrets.GCP_PROJECT_ID }}
-          
-          echo "Google Cloud authentication successful"
-
-      - name: Create and Configure Storage Bucket
-        run: |
-          # Skip if no GCP credentials
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "Skipping bucket creation - no GCP credentials"
-            exit 0
-          fi
-          
-          # Determine environment-specific bucket name
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            BUCKET_NAME="timeless-frontend-prod"
-            ENV="production"
-          else
-            BUCKET_NAME="timeless-frontend-dev"
-            ENV="development"
-          fi
-          
-          echo "Creating and configuring bucket: $BUCKET_NAME"
-          
-          # Create bucket if it doesn't exist
-          if ! gsutil ls gs://$BUCKET_NAME >/dev/null 2>&1; then
-            echo "Creating new bucket: gs://$BUCKET_NAME"
-            gsutil mb -l ${{ secrets.GCP_REGION || 'australia-southeast1' }} gs://$BUCKET_NAME
-          else
-            echo "Bucket already exists: gs://$BUCKET_NAME"
-          fi
-          
-          # Configure bucket for website hosting
-          gsutil web set -m index.html -e 404.html gs://$BUCKET_NAME
-          
-          # Make bucket publicly readable
-          gsutil iam ch allUsers:objectViewer gs://$BUCKET_NAME
-          
-          # Set CORS policy for frontend assets
-          cat > cors.json << EOF
-          [
-            {
-              "origin": ["*"],
-              "method": ["GET", "HEAD"],
-              "responseHeader": ["Content-Type"],
-              "maxAgeSeconds": 3600
-            }
-          ]
-          EOF
-          gsutil cors set cors.json gs://$BUCKET_NAME
-          
-          echo "Bucket configured successfully for website hosting"
-
-      - name: Deploy to Cloud Storage
-        id: deploy-info
-        run: |
-          # Skip if no GCP credentials
-          if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
-            echo "Skipping deployment - no GCP credentials"
-            exit 0
-          fi
-          
-          # Determine environment-specific settings
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            BUCKET_NAME="timeless-frontend-prod"
-            ENV="production"
-          else
-            BUCKET_NAME="timeless-frontend-dev"name: CI/CD for Timeless Frontend
+name: CI/CD for Timeless Frontend
 
 on:
   push:
@@ -677,7 +356,7 @@ jobs:
           
       - name: Create deployment manifest
         run: |
-          # Create deployment manifest - Workflow data export for HD
+          # Create deployment manifest for workflow data export
           cat > deployment-manifest.json << EOF
           {
             "build_id": "${{ steps.build-info.outputs.build-id }}",
@@ -687,7 +366,7 @@ jobs:
             "node_version": "${{ env.NODE_VERSION }}",
             "environment": "${{ steps.build-info.outputs.environment }}",
             "build_size": "${{ steps.build-analysis.outputs.size }}",
-            "api_endpoint": "${{ github.ref == 'refs/heads/main' && secrets.PROD_API_URL || secrets.STAGING_API_URL }}",
+            "api_endpoint": "${{ secrets.PROD_API_URL || 'https://timeless-backend-461ftmtcsq-ts.a.run.app' }}",
             "deployment_type": "${{ github.event.inputs.deployment_type || 'auto' }}",
             "assets": {
               "dist_folder": "./dist",
@@ -722,7 +401,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-  # Job 4: Deploy to Google Cloud Storage - HD LEVEL DEPLOYMENT
+  # Job 4: Deploy to Google Cloud Storage
   deploy:
     runs-on: ubuntu-latest
     needs: [test, build]
@@ -886,7 +565,7 @@ jobs:
           echo "Environment: $ENV"
           echo "Build ID: ${{ needs.build.outputs.build-id }}"
 
-      - name: Store deployment info for HD requirement
+      - name: Store deployment information
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -903,7 +582,7 @@ jobs:
             BUCKET_NAME="timeless-frontend-dev"
           fi
           
-          # Create deployment info manifest for HD requirement
+          # Create deployment info manifest
           cat > frontend-deployment.json << EOF
           {
             "deployment_id": "${{ needs.build.outputs.build-id }}",
@@ -929,10 +608,10 @@ jobs:
           }
           EOF
           
-          echo "Frontend deployment information stored for HD requirement"
+          echo "Frontend deployment information stored"
           cat frontend-deployment.json
 
-      - name: Upload deployment artifacts for HD requirement
+      - name: Upload deployment artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:

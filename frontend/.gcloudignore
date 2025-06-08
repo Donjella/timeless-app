@@ -1,0 +1,69 @@
+# Dependencies (will be installed fresh in any build process)
+node_modules
+
+# Version control
+.git
+.gitignore
+
+# Development build artifacts (we only want the production dist)
+dist/
+build/
+
+# Testing files and coverage reports
+coverage/
+.nyc_output
+*.test.js
+*.spec.js
+*.test.jsx
+*.spec.jsx
+__tests__/
+test/
+
+# Development and local environment files
+.env.local
+.env.development
+.env.test
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+vite.config.js.timestamp-*
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS files
+Thumbs.db
+
+# Documentation and README files
+README.md
+docs/
+*.md
+
+# CI/CD files (not needed in any build container)
+.github/
+.gitattributes
+
+# Package manager files (will be recreated)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Vite/build cache and temp files
+.vite/
+temp/
+tmp/
+
+# Storybook build outputs (if using Storybook)
+storybook-static/
+
+# ESLint cache
+.eslintcache
+
+# Prettier cache
+.prettiercache
