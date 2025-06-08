@@ -424,4 +424,4 @@ The following images are used in the application with credits to their original 
 *All images remain the property of their respective copyright holders and are used for demonstration purposes only.*
 
 
-# Trigger
+# Trigger workflow
