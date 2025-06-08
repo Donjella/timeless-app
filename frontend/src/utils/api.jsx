@@ -468,7 +468,7 @@ export const api = {
     },
   },
 
-  // Addresses endpoints
+  // Addresses endpoint
   addresses: {
     updateUserAddress: (addressData) =>
       fetchWrapper('/api/addresses/user', {

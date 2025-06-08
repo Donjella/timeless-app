@@ -305,8 +305,12 @@ jobs:
           echo "  Environment: $ENVIRONMENT"
           echo "  Timestamp: $TIMESTAMP"
           
-      - name: Build project
+      - name: Build project with clean cache
         run: |
+          # Clean build cache and existing dist
+          echo "Cleaning build cache and existing dist..."
+          rm -rf dist/ node_modules/.vite .vite/
+          
           # Use the same backend URL for both environments
           export VITE_API_URL="${{ secrets.PROD_API_URL || 'https://timeless-backend-46lftmtmsq-ts.a.run.app/' }}"
           
@@ -319,12 +323,25 @@ jobs:
           echo "Building with configuration:"
           echo "  API URL: $VITE_API_URL"
           echo "  Environment: $VITE_NODE_ENV"
+          echo "  Vite base config: checking vite.config.js..."
+          
+          # Show current vite config base setting
+          grep "base:" vite.config.js || echo "No base config found"
           
           npm run build
           
           echo "Build completed successfully"
           echo "Dist directory contents:"
           ls -la dist/ 2>/dev/null || echo "Dist directory not found"
+          
+          #  Verify build output paths
+          echo "Checking asset paths in index.html:"
+          if [ -f "dist/index.html" ]; then
+            grep -E "(src=|href=)" dist/index.html | head -5
+          else
+            echo "ERROR: index.html not found!"
+            exit 1
+          fi
           
       - name: Analyze build size
         id: build-analysis
