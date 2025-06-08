@@ -548,10 +548,12 @@ jobs:
           
           # Set cache control headers for performance
           echo "Setting cache control headers..."
-          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000" gs://$BUCKET_NAME/assets/**
-          gsutil -m setmeta -h "Cache-Control:public, max-age=3600" gs://$BUCKET_NAME/*.html
-          gsutil -m setmeta -h "Cache-Control:public, max-age=86400" gs://$BUCKET_NAME/*.js
-          gsutil -m setmeta -h "Cache-Control:public, max-age=86400" gs://$BUCKET_NAME/*.css
+          
+          # Cache assets folder for 1 year (contains hashed filenames)
+          gsutil -m setmeta -h "Cache-Control:public, max-age=31536000" gs://$BUCKET_NAME/assets/** || echo "No assets folder found"
+          
+          # Cache HTML files for 1 hour (for updates)
+          gsutil -m setmeta -h "Cache-Control:public, max-age=3600" gs://$BUCKET_NAME/*.html || echo "No HTML files found"
           
           # Generate website URL
           WEBSITE_URL="https://storage.googleapis.com/$BUCKET_NAME/index.html"
