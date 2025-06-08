@@ -1,7 +1,7 @@
 // src/utils/api.js
 
 // Base URL for API requests
-const API_BASE_URL = 'https://timeless-back-end.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 // Helper function to check if token is expired
 const isTokenExpired = (token) => {
