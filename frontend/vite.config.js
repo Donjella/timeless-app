@@ -6,7 +6,13 @@ export default defineConfig({
   plugins: [react()],
   
   // Use relative paths for Google Cloud Storage compatibility
-  base: './',
+  base: '/',
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: '/index.html'
+    }
+  },
 
   test: {
     globals: true,
