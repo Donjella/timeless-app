@@ -5,12 +5,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   
-  // Use relative paths for Google Cloud Storage compatibility
-  base: '/',
+  // Use bucket-specific base path for Google Cloud Storage
+  base: '/timeless-frontend-prod/',
+  
   build: {
     outDir: 'dist',
     rollupOptions: {
-      input: '/index.html'
+      input: 'index.html'  // ← FIXED: Remove leading slash
     }
   },
 
