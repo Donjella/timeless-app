@@ -463,7 +463,7 @@ jobs:
           echo "Docker image built and pushed successfully"
           echo "Image URI: $IMAGE_URI"
 
-      - name: Deploy to Cloud Run with environment-specific configuration
+      - name: Deploy to Cloud Run with environment file
         run: |
           # Skip if no GCP credentials
           if [ -z "${{ secrets.GCP_SA_KEY }}" ]; then
@@ -475,14 +475,12 @@ jobs:
           if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
             ENV="prod"
             SERVICE_NAME="timeless-backend"
-            # Use MongoDB Atlas for production
             DATABASE_URL="${{ secrets.PROD_DATABASE_URL }}"
             ALLOWED_ORIGINS="${{ secrets.PROD_ALLOWED_ORIGINS }}"
             NODE_ENV="production"
           else
             ENV="dev"
             SERVICE_NAME="timeless-backend-dev"
-            # Use same MongoDB Atlas but different database name
             DATABASE_URL="${{ secrets.PROD_DATABASE_URL }}"
             ALLOWED_ORIGINS="${{ secrets.DEV_ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:4173' }}"
             NODE_ENV="development"
@@ -490,18 +488,25 @@ jobs:
           
           IMAGE_URI="gcr.io/${{ secrets.GCP_PROJECT_ID }}/timeless-backend:${{ needs.build.outputs.build-id }}-$ENV"
           
-          echo "Deploying to Cloud Run service '$SERVICE_NAME'..."
+          # Create environment file to handle special characters properly
+          cat > env-vars.yaml << EOF
+          NODE_ENV: $NODE_ENV
+          DATABASE_URL: $DATABASE_URL
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ALLOWED_ORIGINS: $ALLOWED_ORIGINS
+          EOF
           
-          # Deploy with comprehensive environment variables and security settings
+          echo "Deploying to Cloud Run service '$SERVICE_NAME'..."
+          echo "Environment variables:"
+          cat env-vars.yaml
+          
+          # Deploy using environment file
           gcloud run deploy "$SERVICE_NAME" \
             --image "$IMAGE_URI" \
             --platform managed \
             --region ${{ secrets.GCP_REGION || 'australia-southeast1' }} \
             --allow-unauthenticated \
-            --set-env-vars "NODE_ENV=$NODE_ENV" \
-            --set-env-vars "DATABASE_URL=$DATABASE_URL" \
-            --set-env-vars "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
-            --set-env-vars "ALLOWED_ORIGINS=$ALLOWED_ORIGINS" \
+            --env-vars-file env-vars.yaml \
             --cpu=1 \
             --memory=512Mi \
             --min-instances=0 \
